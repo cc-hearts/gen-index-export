@@ -1,0 +1,33 @@
+{
+  "name": "@cc-heart/gen-index-export",
+  "version": "0.0.4",
+  "description": "Generate the exported statement",
+  "main": "index.js",
+  "type": "module",
+  "bin": "dist/bin/index.js",
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "build": "tsc -p tsconfig.build.json && rollup -c",
+    "playground": "ts-node-esm index.ts --path ./example --ignoreIndexPath",
+    "deploy": "npm run prebuild && npm run build",
+    "prettier": "npx prettier --write ."
+  },
+  "keywords": [
+    "export"
+  ],
+  "author": "heart",
+  "license": "MIT",
+  "dependencies": {
+    "@cc-heart/utils": "^2.0.9",
+    "glob": "^9.3.2"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^11.1.0",
+    "@types/node": "^18.15.10",
+    "rimraf": "^4.4.1",
+    "tslib": "^2.5.0",
+    "vitest": "^0.29.8"
+  }
+}
