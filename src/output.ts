@@ -1,6 +1,5 @@
 import { IExport } from "../types/helper";
 
-
 export function output(res: IExport[]): string {
   let str = ''
   if (!res) return str

@@ -1,9 +1,26 @@
 import glob from 'glob';
-import { isAbsolute, resolve, extname, relative, basename } from 'path';
-import { hasOwnProperty } from '@cc-heart/utils';
+import { join, isAbsolute, resolve, extname, relative, basename } from 'path';
+import { existsSync, writeFile } from 'fs';
 
 function replaceSuffix(path, replaceSuffix = '') {
     return path.replace(/\..*?$/, replaceSuffix);
+}
+function loadConfigFile(path) {
+    // 加载配置文件
+    const fileName = ['genIndexExport.config.ts', 'genIndexExport.config.cjs', 'genIndexExport.config.js'];
+    path = path || process.cwd();
+    let filePath;
+    for (let i = 0; i < fileName.length; i++) {
+        const configFilePath = join(path, fileName[i]);
+        if (existsSync(configFilePath)) {
+            filePath = configFilePath;
+            break;
+        }
+    }
+    if (filePath) {
+        return import(filePath);
+    }
+    return null;
 }
 function argvTranslateConfig() {
     const argv = process.argv;
@@ -23,7 +40,16 @@ function replacePathIndex(path) {
     return path.replace(/\/index$/, '');
 }
 function toUpperCase(str) {
-    return str.replace(/^[a-z]/, c => c.toUpperCase());
+    return str.replace(/^[a-z]/, char => char.toUpperCase());
+}
+function outputFile(path, ctx) {
+    writeFile(path, ctx, err => {
+        console.error(err);
+    });
+}
+
+function hasOwnProperty(obj, prop) {
+    return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
 function output(res) {
@@ -51,8 +77,17 @@ function output(res) {
 
 const ignoreDefaultExport = ['vue'];
 function genAbsolutePath({ path: modulePath }) {
-    if (!isAbsolute(modulePath)) {
-        modulePath = resolve(process.cwd(), modulePath);
+    const getModulePath = (path) => {
+        if (!isAbsolute(path)) {
+            return resolve(process.cwd(), path);
+        }
+        return path;
+    };
+    if (Array.isArray(modulePath)) {
+        modulePath = modulePath.map(path => getModulePath(path));
+    }
+    else {
+        modulePath = getModulePath(modulePath);
     }
     return modulePath;
 }
@@ -103,13 +138,33 @@ function parseModuleMap(map, isIgnoreIndexPath = false) {
     }
     return result;
 }
+// TODO: 命令行只能有一个 后续优化
 async function bootstrap() {
-    const config = argvTranslateConfig();
-    if (!hasOwnProperty(config, 'path')) {
+    let argvConfig = argvTranslateConfig();
+    const fileConfig = await loadConfigFile(argvConfig.config);
+    if (fileConfig) {
+        const config = fileConfig.default || {};
+        argvConfig = { ...config, ...argvConfig };
+    }
+    if (!hasOwnProperty(argvConfig, 'path')) {
         throw new Error('path is required');
     }
-    const absolutePath = genAbsolutePath(config);
-    const map = await getAllFileList(absolutePath);
-    console.log(output(parseModuleMap(map, hasOwnProperty(config, 'ignoreIndexPath'))));
+    const absolutePath = genAbsolutePath(argvConfig);
+    const isIgnoreIndexPath = hasOwnProperty(argvConfig, 'ignoreIndexPath');
+    const getOutput = async (path) => {
+        const exportMap = await getAllFileList(path);
+        return output(parseModuleMap(exportMap, isIgnoreIndexPath));
+    };
+    if (Array.isArray(absolutePath)) {
+        absolutePath.forEach(async (path) => {
+            const ctx = await getOutput(path);
+            const outputFilePath = join(path, argvConfig.output || 'index.ts');
+            outputFile(outputFilePath, ctx);
+        });
+    }
+    else {
+        const exportStr = await getOutput(absolutePath);
+        console.log(exportStr);
+    }
 }
 bootstrap();

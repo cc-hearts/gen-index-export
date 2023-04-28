@@ -9,6 +9,7 @@
     "esModuleInterop": true,
     "jsx": "preserve",
     "useDefineForClassFields": true,
-    "strict": true
+    "strict": true,
+    "noEmit": true
   }
 }

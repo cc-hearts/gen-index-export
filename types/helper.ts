@@ -1,6 +1,8 @@
 export interface IConfig {
-  path: string
+  path: string | string[]
   ignoreIndexPath?: boolean
+  config?: string // 配置文件
+  output?: string
 }
 
 export interface IExport {
@@ -8,4 +10,8 @@ export interface IExport {
   exportName?: string // 导出的名称
   exportPath?: string // 导出的路径
   type: 'js' | 'jsx' | 'ts' | 'tsx' | 'vue' | string
+}
+
+export interface ILoadConfig {
+  default?: IConfig
 }

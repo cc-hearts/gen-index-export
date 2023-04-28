@@ -1,10 +1,12 @@
 import glob from 'glob'
-import { isAbsolute, resolve, relative, extname, basename } from 'path'
+import { isAbsolute, resolve, relative, extname, basename, join } from 'path'
 import {
   replaceSuffix,
   argvTranslateConfig,
   replacePathIndex,
   toUpperCase,
+  loadConfigFile,
+  outputFile,
 } from './src/shard.js'
 import { hasOwnProperty } from '@cc-heart/utils'
 import type { IConfig, IExport } from './types/helper'
@@ -13,8 +15,16 @@ import { output } from './src/output.js'
 const ignoreDefaultExport = ['vue']
 
 function genAbsolutePath({ path: modulePath }: IConfig) {
-  if (!isAbsolute(modulePath)) {
-    modulePath = resolve(process.cwd(), modulePath)
+  const getModulePath = (path: string) => {
+    if (!isAbsolute(path)) {
+      return resolve(process.cwd(), path)
+    }
+    return path
+  }
+  if (Array.isArray(modulePath)) {
+    modulePath = modulePath.map(path => getModulePath(path))
+  } else {
+    modulePath = getModulePath(modulePath)
   }
   return modulePath
 }
@@ -72,15 +82,33 @@ function parseModuleMap(
   }
   return result
 }
-
+// TODO: 命令行只能有一个 后续优化
 async function bootstrap() {
-  const config = argvTranslateConfig<IConfig>()
-  if (!hasOwnProperty(config, 'path')) {
+  let argvConfig = argvTranslateConfig<IConfig>()
+  const fileConfig = await loadConfigFile(argvConfig.config)
+  if (fileConfig) {
+    const config = fileConfig.default || {}
+    argvConfig = { ...config, ...argvConfig }
+  }
+  if (!hasOwnProperty(argvConfig, 'path')) {
     throw new Error('path is required')
   }
-  const absolutePath = genAbsolutePath(config)
-  const map = await getAllFileList(absolutePath)
-  console.log(output(parseModuleMap(map, hasOwnProperty(config, 'ignoreIndexPath'))))
+  const absolutePath = genAbsolutePath(argvConfig)
+  const isIgnoreIndexPath = hasOwnProperty(argvConfig, 'ignoreIndexPath')
+  const getOutput = async (path: string) => {
+    const exportMap = await getAllFileList(path)
+    return output(parseModuleMap(exportMap, isIgnoreIndexPath))
+  }
+  if (Array.isArray(absolutePath)) {
+    absolutePath.forEach(async (path) => {
+      const ctx = await getOutput(path)
+      const outputFilePath = join(path, argvConfig.output || 'index.ts')
+      outputFile(outputFilePath, ctx)
+    })
+  } else {
+    const exportStr = await getOutput(absolutePath)
+    console.log(exportStr);
+  }
 }
 
 bootstrap()

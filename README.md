@@ -1,4 +1,4 @@
-# gencode-export-index
+# gencode-index-export
 
 In `index.js`, it is always necessary to import all the files under a module (eg `export * from './foo'`).
 
