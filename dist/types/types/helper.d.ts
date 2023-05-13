@@ -1,8 +1,10 @@
 export interface IConfig {
-    path: string | string[];
+    dirs: Array<{
+        path: string;
+        output?: string;
+    }>;
     ignoreIndexPath?: boolean;
     config?: string;
-    output?: string;
 }
 export interface IExport {
     isDefaultExport?: boolean;

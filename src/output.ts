@@ -1,4 +1,4 @@
-import { IExport } from "../types/helper";
+import type { IExport } from '../types/helper'
 
 export function output(res: IExport[]): string {
   let str = ''

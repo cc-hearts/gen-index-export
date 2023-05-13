@@ -1,8 +1,7 @@
 export interface IConfig {
-  path: string | string[]
+  dirs: Array<{ path: string; output?: string }>
   ignoreIndexPath?: boolean
   config?: string // 配置文件
-  output?: string
 }
 
 export interface IExport {

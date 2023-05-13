@@ -1,6 +1,6 @@
 {
   "name": "@cc-heart/gen-index-export",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Generate the exported statement",
   "main": "index.js",
   "type": "module",
@@ -9,8 +9,9 @@
     "prebuild": "rimraf dist",
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "build": "tsc -p tsconfig.build.json && rollup -c",
-    "playground": "ts-node-esm index.ts --path ./example --ignoreIndexPath",
+    "build": "npm run prebuild && tsc -p tsconfig.build.json && rollup -c",
+    "playground": "ts-node-esm index.ts --path ./example --output ./example/index.ts  --ignoreIndexPath",
+    "argv": "ts-node-esm example/argv.ts --path ./example ./asd --output ./example/index.ts --ignoreIndexPath",
     "deploy": "npm run prebuild && npm run build",
     "prettier": "npx prettier --write ."
   },

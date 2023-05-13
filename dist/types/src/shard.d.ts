@@ -1,4 +1,4 @@
-import type { ILoadConfig } from "../types/helper";
+import type { ILoadConfig } from '../types/helper';
 export declare function replaceSuffix(path: string, replaceSuffix?: string): string;
 export declare function loadConfigFile(path?: string): Promise<ILoadConfig> | null;
 export declare function argvTranslateConfig<T extends object>(): T;
