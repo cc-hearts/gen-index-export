@@ -1,17 +1,27 @@
-import { writeFile, existsSync } from 'fs';
+import { writeFile, existsSync, readFileSync } from 'fs';
 import { resolve, join, isAbsolute, extname, relative, basename } from 'path';
 import glob from 'glob';
+import { parse } from '@babel/parser';
+import tranverse from '@babel/traverse';
 
+const fileName = [
+    'genIndexExport.config.ts',
+    'genIndexExport.config.cjs',
+    'genIndexExport.config.js',
+];
+const suffix = ['js', 'jsx', 'ts', 'tsx', 'vue'];
+
+/**
+ * Replaces the suffix of a given path with a specified suffix.
+ * @param {string} path - The path to modify.
+ * @param {string} replaceSuffix - The suffix to replace the original suffix with. Defaults to an empty string.
+ * @return {string} Returns the modified path.
+ */
 function replaceSuffix(path, replaceSuffix = '') {
     return path.replace(/\..*?$/, replaceSuffix);
 }
 function loadConfigFile(path) {
-    // 加载配置文件
-    const fileName = [
-        'genIndexExport.config.ts',
-        'genIndexExport.config.cjs',
-        'genIndexExport.config.js',
-    ];
+    // load config file
     path = path || process.cwd();
     let filePath = undefined;
     for (let i = 0; i < fileName.length; i++) {
@@ -128,17 +138,28 @@ function output(res) {
             str += `export { default as ${name} } from './${item.exportPath}'\n`;
             set.add(name);
         }
-        else {
-            str += `export * from './${item.exportPath}'\n`;
-        }
+        str += `export * from './${item.exportPath}'\n`;
         return set;
     }, new Set());
     return str;
 }
 
-const ignoreDefaultExport = ['vue'];
+var isHasDefaultExport = (path) => {
+    const code = readFileSync(path, 'utf-8');
+    const ast = parse(code, {
+        sourceType: 'unambiguous',
+    });
+    let isHasDefeaultExport = false;
+    // @ts-ignore
+    tranverse.default(ast, {
+        ExportDefaultDeclaration() {
+            isHasDefeaultExport = true;
+        },
+    });
+    return isHasDefeaultExport;
+};
+
 async function getAllFileListMap(path, outputAbsolutePath) {
-    const suffix = ['js', 'jsx', 'ts', 'tsx', 'vue'];
     const map = new Map();
     suffix.forEach((key) => {
         map.set(key, new Set());
@@ -149,7 +170,7 @@ async function getAllFileListMap(path, outputAbsolutePath) {
         // 获取相对路径
         const suffixName = extname(filePath).split('.')[1];
         if (suffixName && map.has(suffixName)) {
-            map.get(suffixName).add(relative(path, filePath));
+            map.get(suffixName).add([relative(path, filePath), filePath]);
         }
     });
     return map;
@@ -157,7 +178,7 @@ async function getAllFileListMap(path, outputAbsolutePath) {
 function parseModuleMap(map, isIgnoreIndexPath = false) {
     let result = [];
     for (const [suffix, fileSet] of map) {
-        for (let file of fileSet.values()) {
+        for (let [file, absolutePath] of fileSet.values()) {
             const componentName = toUpperCase(basename(file, `.${suffix}`));
             let newPath = file;
             switch (suffix) {
@@ -172,15 +193,12 @@ function parseModuleMap(map, isIgnoreIndexPath = false) {
                     break;
             }
             const exportInfo = {
-                isDefaultExport: true,
+                isDefaultExport: isHasDefaultExport(absolutePath),
                 exportName: componentName,
                 exportPath: newPath,
                 type: suffix,
             };
             result.unshift(exportInfo);
-            if (!ignoreDefaultExport.includes(suffix)) {
-                result.unshift({ ...exportInfo, isDefaultExport: false });
-            }
         }
     }
     return result;

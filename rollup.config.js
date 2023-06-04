@@ -13,6 +13,6 @@ export default {
       format: 'esm',
     },
   ],
-  external: ['fs', 'glob'],
+  external: ['fs', 'glob', '@babel/parser', '@babel/traverse'],
   plugins: [_resolve(), commonjs(), pluginTypescript(tsConfig)],
 }
