@@ -1,5 +1,6 @@
 import glob from 'glob'
 import { relative, extname, basename } from 'path'
+import { suffix } from './config'
 import { replaceSuffix, replacePathIndex, toUpperCase } from './shard.js'
 import type { IExport } from '../types/helper.js'
 const ignoreDefaultExport = ['vue']
@@ -7,7 +8,6 @@ export async function getAllFileListMap(
   path: string,
   outputAbsolutePath: string[]
 ) {
-  const suffix = ['js', 'jsx', 'ts', 'tsx', 'vue']
   const map = new Map<string, Set<string>>()
   suffix.forEach((key) => {
     map.set(key, new Set())
@@ -19,7 +19,6 @@ export async function getAllFileListMap(
   filePathList.forEach((filePath) => {
     // 获取相对路径
     const suffixName = extname(filePath).split('.')[1]
-
     if (suffixName && map.has(suffixName)) {
       map.get(suffixName)!.add(relative(path, filePath))
     }

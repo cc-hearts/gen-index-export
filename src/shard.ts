@@ -1,18 +1,19 @@
 import { existsSync, writeFile } from 'fs'
 import { join, resolve } from 'path'
 import type { IConfig, ILoadConfig } from '../types/helper'
-
+import { fileName } from './config'
+/**
+ * Replaces the suffix of a given path with a specified suffix.
+ * @param {string} path - The path to modify.
+ * @param {string} replaceSuffix - The suffix to replace the original suffix with. Defaults to an empty string.
+ * @return {string} Returns the modified path.
+ */
 export function replaceSuffix(path: string, replaceSuffix = '') {
   return path.replace(/\..*?$/, replaceSuffix)
 }
 
 export function loadConfigFile(path?: string): Promise<ILoadConfig> | null {
-  // 加载配置文件
-  const fileName = [
-    'genIndexExport.config.ts',
-    'genIndexExport.config.cjs',
-    'genIndexExport.config.js',
-  ]
+  // load config file
   path = path || process.cwd()
   let filePath: string | void = undefined
   for (let i = 0; i < fileName.length; i++) {
