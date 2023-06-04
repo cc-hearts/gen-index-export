@@ -1,7 +1,7 @@
 import { existsSync, writeFile } from 'fs'
 import { join, resolve } from 'path'
 import type { IConfig, ILoadConfig } from '../types/helper'
-import { fileName } from './config'
+import { fileName } from './config.js'
 /**
  * Replaces the suffix of a given path with a specified suffix.
  * @param {string} path - The path to modify.
