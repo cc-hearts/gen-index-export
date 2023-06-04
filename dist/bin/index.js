@@ -92,6 +92,11 @@ function outputFile(path, ctx) {
         console.log(`write ${resolve(process.cwd(), path)} success`);
     });
 }
+function getOutputAbsolutePath(argv) {
+    const { dirs } = argv;
+    const output = dirs.map((dir) => dir.output).filter(Boolean);
+    return output.map((path) => resolve(process.cwd(), path));
+}
 
 function hasOwnProperty(obj, prop) {
     return Object.prototype.hasOwnProperty.call(obj, prop);
@@ -132,18 +137,19 @@ function output(res) {
 }
 
 const ignoreDefaultExport = ['vue'];
-async function getAllFileListMap(path) {
+async function getAllFileListMap(path, outputAbsolutePath) {
     const suffix = ['js', 'jsx', 'ts', 'tsx', 'vue'];
     const map = new Map();
     suffix.forEach((key) => {
         map.set(key, new Set());
     });
-    const fileList = await glob(`${path}/**/*.{${suffix.join(',')}}`);
-    fileList.forEach((file) => {
+    let filePathList = await glob(`${path}/**/*.{${suffix.join(',')}}`);
+    filePathList = filePathList.filter((path) => !outputAbsolutePath.includes(path));
+    filePathList.forEach((filePath) => {
         // 获取相对路径
-        const suffixName = extname(file).split('.')[1];
+        const suffixName = extname(filePath).split('.')[1];
         if (suffixName && map.has(suffixName)) {
-            map.get(suffixName).add(relative(path, file));
+            map.get(suffixName).add(relative(path, filePath));
         }
     });
     return map;
@@ -191,14 +197,15 @@ async function genExportIndex(argvConfig) {
     }
     const absolutePath = genAbsolutePath(argvConfig);
     const isIgnoreIndexPath = hasOwnProperty(argvConfig, 'ignoreIndexPath');
-    const getOutput = async (path) => {
-        const exportMap = await getAllFileListMap(path);
+    const getOutput = async (path, argv) => {
+        const outputAbsolutePath = getOutputAbsolutePath(argv);
+        const exportMap = await getAllFileListMap(path, outputAbsolutePath);
         return output(parseModuleMap(exportMap, isIgnoreIndexPath));
     };
     const fileMap = new Map();
     const stdinSet = new Set();
     await Promise.all(absolutePath.map(async (path, index) => {
-        const ctx = await getOutput(path);
+        const ctx = await getOutput(path, argvConfig);
         const output = argvConfig.dirs[index]?.output || Symbol.for('stdin'); // default output stdin
         if (output === Symbol.for('stdin')) {
             stdinSet.add(ctx);
@@ -211,7 +218,6 @@ async function genExportIndex(argvConfig) {
     return [fileMap, stdinSet];
 }
 
-// TODO: 命令行只能有一个 后续优化
 async function bootstrap() {
     let argvConfig = argvTranslateConfig();
     const [fileMap, stdinSet] = await genExportIndex(argvConfig);

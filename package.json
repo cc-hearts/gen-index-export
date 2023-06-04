@@ -10,8 +10,8 @@
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "build": "npm run prebuild && tsc -p tsconfig.build.json && rollup -c",
-    "playground": "ts-node-esm index.ts --path ./example --output ./example/index.ts  --ignoreIndexPath",
-    "argv": "ts-node-esm example/argv.ts --path ./example ./asd --output ./example/index.ts --ignoreIndexPath",
+    "playground": "ts-node-esm index.ts --path ./example/a ./example/b --output ./example/a/index.ts ./example/b/test.ts --ignoreIndexPath",
+    "argv": "ts-node-esm example/argv.ts --path ./example ./asd --output ./example/index.ts ./example/test.ts --ignoreIndexPath",
     "deploy": "npm run prebuild && npm run build",
     "prettier": "npx prettier --write ."
   },

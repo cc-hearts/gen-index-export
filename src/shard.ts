@@ -93,3 +93,9 @@ export function outputFile(path: string, ctx: string) {
     console.log(`write ${resolve(process.cwd(), path)} success`)
   })
 }
+
+export function getOutputAbsolutePath(argv: IConfig) {
+  const { dirs } = argv
+  const output = dirs.map((dir) => dir.output!).filter(Boolean)
+  return output.map((path) => resolve(process.cwd(), path))
+}

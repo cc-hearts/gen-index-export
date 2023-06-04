@@ -3,19 +3,25 @@ import { relative, extname, basename } from 'path'
 import { replaceSuffix, replacePathIndex, toUpperCase } from './shard.js'
 import type { IExport } from '../types/helper.js'
 const ignoreDefaultExport = ['vue']
-export async function getAllFileListMap(path: string) {
+export async function getAllFileListMap(
+  path: string,
+  outputAbsolutePath: string[]
+) {
   const suffix = ['js', 'jsx', 'ts', 'tsx', 'vue']
   const map = new Map<string, Set<string>>()
   suffix.forEach((key) => {
     map.set(key, new Set())
   })
-  const fileList = await glob(`${path}/**/*.{${suffix.join(',')}}`)
-  fileList.forEach((file) => {
+  let filePathList = await glob(`${path}/**/*.{${suffix.join(',')}}`)
+  filePathList = filePathList.filter(
+    (path) => !outputAbsolutePath.includes(path)
+  )
+  filePathList.forEach((filePath) => {
     // 获取相对路径
-    const suffixName = extname(file).split('.')[1]
+    const suffixName = extname(filePath).split('.')[1]
 
     if (suffixName && map.has(suffixName)) {
-      map.get(suffixName)!.add(relative(path, file))
+      map.get(suffixName)!.add(relative(path, filePath))
     }
   })
 
