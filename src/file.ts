@@ -1,6 +1,6 @@
 import glob from 'glob'
 import { relative, extname, basename } from 'path'
-import { suffix } from './config.js'
+import { onlyDefaultExport, suffix } from './config.js'
 import isHasDefaultExport from './parse-default.js'
 import { replaceSuffix, replacePathIndex, toUpperCase } from './shard.js'
 import type { IExport } from '../types/helper.js'
@@ -48,7 +48,7 @@ export function parseModuleMap(
           break
       }
       const exportInfo = {
-        isDefaultExport: isHasDefaultExport(absolutePath),
+        isDefaultExport: onlyDefaultExport.includes(suffix) || isHasDefaultExport(absolutePath),
         exportName: componentName,
         exportPath: newPath,
         type: suffix,

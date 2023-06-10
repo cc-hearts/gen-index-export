@@ -1,4 +1,5 @@
 import type { IExport } from '../types/helper'
+import { onlyDefaultExport } from './config.js'
 export function output(res: IExport[]): string {
   let str = ''
   if (!res) return str
@@ -12,7 +13,9 @@ export function output(res: IExport[]): string {
       str += `export { default as ${name} } from './${item.exportPath}'\n`
       set.add(name)
     }
-    str += `export * from './${item.exportPath}'\n`
+    if (!onlyDefaultExport.includes(item.type)) {
+      str += `export * from './${item.exportPath}'\n`
+    }
     return set
   }, new Set())
   return str
