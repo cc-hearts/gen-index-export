@@ -23,10 +23,6 @@ export default [
       {
         file: 'dist/define.esm.js',
         format: 'esm',
-      },
-      {
-        file: 'dist/define.cjs.js',
-        format: 'cjs',
       }
     ],
     plugins: [pluginTypescript(tsConfig)],

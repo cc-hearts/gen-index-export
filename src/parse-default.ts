@@ -6,6 +6,7 @@ export default (path: string) => {
   const code = readFileSync(path, 'utf-8')
   const ast = parse(code, {
     sourceType: 'unambiguous',
+    plugins: ['typescript', 'jsx'],
   })
   let isHasDefeaultExport = false
   // @ts-ignore
