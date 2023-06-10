@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { writeFile, existsSync, readFileSync } from 'fs';
 import { resolve, isAbsolute, join, extname, relative, basename } from 'path';
 import glob from 'glob';
@@ -71,11 +69,9 @@ function output(res) {
 }
 
 const fileName = [
-    'genIndexExport.config.ts',
-    'genIndexExport.config.cjs',
     'genIndexExport.config.js',
 ];
-const suffix = ['js', 'jsx', 'ts', 'tsx', 'vue'];
+const suffix = ['js', 'jsx', 'ts', 'tsx'];
 
 function loadConfigFile(path) {
     // load config file
