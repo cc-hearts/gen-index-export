@@ -1,19 +1,13 @@
 import { hasOwnProperty } from '@cc-heart/utils'
-import { getOutputAbsolutePath, loadConfigFile } from './shard.js'
+import { getOutputAbsolutePath } from './shard.js'
 import { genAbsolutePath } from './path.js'
 import { output } from './output.js'
+import loadArvgConfig from './atgv.js'
 import { getAllFileListMap, parseModuleMap } from './file.js'
 import type { IConfig } from '../types/helper'
 
-export async function genExportIndex(argvConfig: IConfig) {
-  const fileConfig = await loadConfigFile(argvConfig.config)
-  if (fileConfig) {
-    const config = fileConfig.default || {}
-    argvConfig = { ...config, ...argvConfig }
-  }
-  if (!hasOwnProperty(argvConfig, 'dirs')) {
-    throw new Error('dirs is required')
-  }
+export async function genExportIndex() {
+  const argvConfig = await loadArvgConfig()
   const absolutePath = genAbsolutePath(argvConfig)
   const isIgnoreIndexPath = hasOwnProperty(argvConfig, 'ignoreIndexPath')
 

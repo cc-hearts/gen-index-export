@@ -9,3 +9,11 @@ Using this package you can parse all exported files in a certain path now suppor
 ```shell
 npm install -D @cc-heart/gen-index-export
 ```
+
+## Usage
+
+To use this package, you can run it from the command line with the following syntax:
+
+```shell
+
+```

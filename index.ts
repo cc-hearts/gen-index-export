@@ -1,11 +1,8 @@
-import { argvTranslateConfig, outputFile } from './src/shard.js'
-import type { IConfig } from './types/helper'
-
+import { outputFile } from './src/shard.js'
 import { genExportIndex } from './src/main.js'
 
 async function bootstrap() {
-  let argvConfig = argvTranslateConfig<IConfig>()
-  const [fileMap, stdinSet] = await genExportIndex(argvConfig)
+  const [fileMap, stdinSet] = await genExportIndex()
   for (const [path, ctx] of fileMap) {
     outputFile(path, ctx)
   }
