@@ -8,7 +8,7 @@
   "exports": {
     "./define": {
       "import": "./dist/define.esm.js",
-      "types": "./dist/types/index.d.ts"
+      "types": "./dist/types/src/define.d.ts"
     }
   },
   "scripts": {
