@@ -1,13 +1,14 @@
 {
   "name": "@cc-heart/gen-index-export",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Generate the exported statement",
   "main": "index.js",
   "bin": "dist/bin/index.js",
   "type": "module",
   "exports": {
     "./define": {
-      "import": "./dist/define.esm.js"
+      "import": "./dist/define.esm.js",
+      "types": "./dist/types/index.d.ts"
     }
   },
   "scripts": {
