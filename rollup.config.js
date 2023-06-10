@@ -5,14 +5,31 @@ import commonjs from '@rollup/plugin-commonjs'
 
 tsConfig.compilerOptions.declaration = false
 
-export default {
-  input: './index.ts',
-  output: [
-    {
-      file: 'dist/bin/index.js',
-      format: 'esm',
-    },
-  ],
-  external: ['fs', 'glob', '@babel/parser', '@babel/traverse'],
-  plugins: [_resolve(), commonjs(), pluginTypescript(tsConfig)],
-}
+export default [
+  {
+    input: './index.ts',
+    output: [
+      {
+        file: 'dist/bin/index.js',
+        format: 'esm',
+      }
+    ],
+    external: ['fs', 'glob', '@babel/parser', '@babel/traverse'],
+    plugins: [_resolve(), commonjs(), pluginTypescript(tsConfig)],
+  },
+  {
+    input: './src/define.ts',
+    output: [
+      {
+        file: 'dist/define.esm.js',
+        format: 'esm',
+      },
+      {
+        file: 'dist/define.cjs.js',
+        format: 'cjs',
+      }
+    ],
+    plugins: [pluginTypescript(tsConfig)],
+  }
+
+]

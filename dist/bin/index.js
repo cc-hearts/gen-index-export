@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { writeFile, existsSync, readFileSync } from 'fs';
 import { resolve, isAbsolute, join, extname, relative, basename } from 'path';
 import glob from 'glob';

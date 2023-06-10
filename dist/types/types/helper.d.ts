@@ -5,7 +5,7 @@ export interface IConfig {
     }>;
     ignoreIndexPath?: boolean;
     config?: string;
-    output: string[];
+    output?: string[];
 }
 export interface IExport {
     isDefaultExport?: boolean;

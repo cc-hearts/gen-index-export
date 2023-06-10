@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { outputFile } from './src/shard.js'
 import { genExportIndex } from './src/main.js'
 

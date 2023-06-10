@@ -3,8 +3,13 @@
   "version": "0.0.9",
   "description": "Generate the exported statement",
   "main": "index.js",
-  "type": "module",
   "bin": "dist/bin/index.js",
+  "type": "module",
+  "exports": {
+    "./define": {
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "test": "vitest",
