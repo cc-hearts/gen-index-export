@@ -12,7 +12,6 @@ export function replaceSuffix(path: string, replaceSuffix = '') {
   return path.replace(/\..*?$/, replaceSuffix)
 }
 
-
 export function replacePathIndex(path: string) {
   return path.replace(/\/index$/, '')
 }

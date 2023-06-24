@@ -47,6 +47,12 @@ function genAbsolutePath({ dirs }) {
     return modulePath;
 }
 
+const fileName = [
+    'genIndexExport.config.js',
+];
+const suffix = ['js', 'jsx', 'ts', 'tsx', 'vue'];
+const onlyDefaultExport = ['vue'];
+
 function output(res) {
     let str = '';
     if (!res)
@@ -62,16 +68,13 @@ function output(res) {
             str += `export { default as ${name} } from './${item.exportPath}'\n`;
             set.add(name);
         }
-        str += `export * from './${item.exportPath}'\n`;
+        if (!onlyDefaultExport.includes(item.type)) {
+            str += `export * from './${item.exportPath}'\n`;
+        }
         return set;
     }, new Set());
     return str;
 }
-
-const fileName = [
-    'genIndexExport.config.js',
-];
-const suffix = ['js', 'jsx', 'ts', 'tsx'];
 
 function loadConfigFile(path) {
     // load config file
@@ -122,7 +125,10 @@ function argvTranslateConfig() {
         const outputs = Reflect.get(config, 'output') || [];
         let dirs = [];
         if (Array.isArray(paths)) {
-            dirs = paths.map((path, i) => ({ path, output: getOutputArgs(outputs, i) }));
+            dirs = paths.map((path, i) => ({
+                path,
+                output: getOutputArgs(outputs, i),
+            }));
         }
         else {
             const path = paths;
@@ -143,7 +149,7 @@ function getOutputArgs(output, index) {
 }
 async function loadArvgConfig() {
     let argvConfig = {};
-    const fileConfig = await loadConfigFile() || {};
+    const fileConfig = (await loadConfigFile()) || {};
     const argv = argvTranslateConfig();
     const config = (fileConfig.default || {});
     argvConfig = { ...config, ...argv };
@@ -166,12 +172,16 @@ var isHasDefaultExport = (path) => {
     return isHasDefeaultExport;
 };
 
-async function getAllFileListMap(path, outputAbsolutePath) {
+async function getAllFileListMap(path, outputAbsolutePath, outputConfig) {
     const map = new Map();
     suffix.forEach((key) => {
         map.set(key, new Set());
     });
-    let filePathList = await glob(`${path}/**/*.{${suffix.join(',')}}`);
+    let globPath = `${path}/*.{${suffix.join(',')}}`;
+    if (outputConfig.recursive) {
+        globPath = `${path}/**/*.{${suffix.join(',')}}`;
+    }
+    let filePathList = await glob(globPath);
     filePathList = filePathList.filter((path) => !outputAbsolutePath.includes(path));
     filePathList.forEach((filePath) => {
         // 获取相对路径
@@ -200,7 +210,8 @@ function parseModuleMap(map, isIgnoreIndexPath = false) {
                     break;
             }
             const exportInfo = {
-                isDefaultExport: isHasDefaultExport(absolutePath),
+                isDefaultExport: onlyDefaultExport.includes(suffix) ||
+                    isHasDefaultExport(absolutePath),
                 exportName: componentName,
                 exportPath: newPath,
                 type: suffix,
@@ -215,15 +226,16 @@ async function genExportIndex() {
     const argvConfig = await loadArvgConfig();
     const absolutePath = genAbsolutePath(argvConfig);
     const isIgnoreIndexPath = hasOwnProperty(argvConfig, 'ignoreIndexPath');
-    const getOutput = async (path, argv) => {
+    const getOutput = async (path, argv, outputConfig) => {
         const outputAbsolutePath = getOutputAbsolutePath(argv);
-        const exportMap = await getAllFileListMap(path, outputAbsolutePath);
+        const exportMap = await getAllFileListMap(path, outputAbsolutePath, outputConfig);
         return output(parseModuleMap(exportMap, isIgnoreIndexPath));
     };
     const fileMap = new Map();
     const stdinSet = new Set();
     await Promise.all(absolutePath.map(async (path, index) => {
-        const ctx = await getOutput(path, argvConfig);
+        const recursive = argvConfig.recursive || false;
+        const ctx = await getOutput(path, argvConfig, { recursive });
         const output = argvConfig.dirs[index]?.output || Symbol.for('stdin'); // default output stdin
         if (output === Symbol.for('stdin')) {
             stdinSet.add(ctx);

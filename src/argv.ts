@@ -1,9 +1,7 @@
-
 import { join } from 'path'
 import { fileName } from './config.js'
 import { existsSync } from 'fs'
-import type { IConfig, ILoadConfig } from '../types/helper'
-
+import type { IConfig, ILoadConfig } from '../types/helper.js'
 
 export function loadConfigFile(path?: string): Promise<ILoadConfig> | null {
   // load config file
@@ -52,13 +50,17 @@ export function argvTranslateConfig<T extends object>(): T {
     const outputs = (Reflect.get(config, 'output') as string | string[]) || []
     let dirs: IConfig['dirs'] = []
     if (Array.isArray(paths)) {
-      dirs = paths.map((path, i) => ({ path, output: getOutputArgs(outputs, i) }))
+      dirs = paths.map((path, i) => ({
+        path,
+        output: getOutputArgs(outputs, i),
+      }))
     } else {
       const path = paths as string
       dirs.push({ path, output: getOutputArgs(outputs, 0) })
     }
     Reflect.set(config, 'dirs', dirs)
   }
+
   return config
 }
 
@@ -74,7 +76,7 @@ function getOutputArgs(output: string | boolean | string[], index: number) {
 
 export default async function loadArvgConfig() {
   let argvConfig = {} as IConfig
-  const fileConfig = await loadConfigFile() || {}
+  const fileConfig = (await loadConfigFile()) || {}
   const argv = argvTranslateConfig()
   const config = (fileConfig.default || {}) as IConfig
   argvConfig = { ...config, ...argv }
