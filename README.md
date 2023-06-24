@@ -13,11 +13,9 @@ npm install -D @cc-heart/gen-index-export
 create the `genIndexExport.config.js` file in the root path of your project project, and write to the following configuration file:
 
 ```js
-import { defineConfig } from "@cc-heart/gen-index-export"
+import { defineConfig } from '@cc-heart/gen-index-export'
 export default defineConfig({
-  dirs: [
-    { path: 'src/components', output: 'src/components/index.ts' },
-  ],
+  dirs: [{ path: 'src/components', output: 'src/components/index.ts' }],
 })
 ```
 

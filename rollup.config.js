@@ -12,7 +12,7 @@ export default [
       {
         file: 'dist/bin/index.js',
         format: 'esm',
-      }
+      },
     ],
     external: ['fs', 'glob', '@babel/parser', '@babel/traverse'],
     plugins: [_resolve(), commonjs(), pluginTypescript(tsConfig)],
@@ -23,9 +23,8 @@ export default [
       {
         file: 'dist/define.esm.js',
         format: 'esm',
-      }
+      },
     ],
     plugins: [pluginTypescript(tsConfig)],
-  }
-
+  },
 ]
