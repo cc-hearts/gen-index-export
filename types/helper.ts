@@ -1,6 +1,11 @@
 export interface IConfig {
-  dirs: Array<{ path: string; output?: string }>
+  dirs: Array<{
+    path: string
+    output?: string
+    recursive?: boolean // 是否递归
+  }>
   ignoreIndexPath?: boolean
+  recursive?: boolean
   config?: string // 配置文件
   output?: string[]
 }
@@ -14,4 +19,8 @@ export interface IExport {
 
 export interface ILoadConfig {
   default?: IConfig
+}
+
+export interface IOutputConfig {
+  recursive?: boolean // 是否递归
 }
