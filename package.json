@@ -1,6 +1,6 @@
 {
   "name": "@cc-heart/gen-index-export",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Generate the exported statement",
   "main": "index.js",
   "bin": "dist/bin/index.js",
