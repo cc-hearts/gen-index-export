@@ -49,6 +49,7 @@ function genAbsolutePath({ dirs }) {
 
 const fileName = [
     'genIndexExport.config.js',
+    'genIndexExport.config.mjs',
 ];
 const suffix = ['js', 'jsx', 'ts', 'tsx', 'vue'];
 const onlyDefaultExport = ['vue'];
