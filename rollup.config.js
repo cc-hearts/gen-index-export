@@ -2,7 +2,7 @@ import pluginTypescript from '@rollup/plugin-typescript'
 import tsConfig from './tsconfig.build.json' assert { type: 'json' }
 import _resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
-
+import json from '@rollup/plugin-json'
 tsConfig.compilerOptions.declaration = false
 
 export default [
@@ -15,7 +15,7 @@ export default [
       },
     ],
     external: ['fs', 'glob', '@babel/parser', '@babel/traverse'],
-    plugins: [_resolve(), commonjs(), pluginTypescript(tsConfig)],
+    plugins: [json(), _resolve(), commonjs(), pluginTypescript(tsConfig)],
   },
   {
     input: './src/define.ts',

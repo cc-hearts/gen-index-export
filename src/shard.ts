@@ -1,6 +1,7 @@
 import { writeFile } from 'fs'
 import { resolve } from 'path'
 import type { IConfig } from '../types/helper'
+import { loadEnd } from './loading.js'
 
 /**
  * Replaces the suffix of a given path with a specified suffix.
@@ -23,7 +24,7 @@ export function toUpperCase(str: string) {
 export function outputFile(path: string, ctx: string) {
   writeFile(path, ctx, (err) => {
     if (err) console.error(err)
-    console.log(`write ${resolve(process.cwd(), path)} success`)
+    loadEnd(`write ${resolve(process.cwd(), path)} success`)
   })
 }
 

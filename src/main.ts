@@ -6,8 +6,10 @@ import loadArgvConfig from './command.js'
 import { getAllFileListMap, parseModuleMap } from './file.js'
 import type { IConfig, IOutputConfig } from '../types/helper'
 import { initHelp } from './command.js'
+import { loading } from './loading.js'
 
 export async function genExportIndex() {
+  loading()
   initHelp()
   const argvConfig = await loadArgvConfig()
   const absolutePath = genAbsolutePath(argvConfig)
