@@ -1,25 +1,8 @@
-import { join } from 'path'
-import { fileName } from './config.js'
-import { existsSync } from 'fs'
-import type { IConfig, ILoadConfig } from '../types/helper.js'
+import type { IConfig } from '../types/helper.js'
 
-export function loadConfigFile(path?: string): Promise<ILoadConfig> | null {
-  // load config file
-  path = path || process.cwd()
-  let filePath: string | void = undefined
-  for (let i = 0; i < fileName.length; i++) {
-    const configFilePath = join(path, fileName[i])
-    if (existsSync(configFilePath)) {
-      filePath = configFilePath
-      break
-    }
-  }
-  if (filePath) {
-    return import(filePath)
-  }
-  return null
-}
-
+/**
+ * @declare argvTranslateConfig function declares, use commander replace
+ */
 export function argvTranslateConfig<T extends object>(): T {
   const argv = process.argv
   const config: T = Object.create(null)
@@ -63,7 +46,9 @@ export function argvTranslateConfig<T extends object>(): T {
 
   return config
 }
-
+/**
+ * @declare getOutputArgs function declares
+ */
 function getOutputArgs(output: string | boolean | string[], index: number) {
   if (Array.isArray(output)) {
     return output[index]
@@ -72,13 +57,4 @@ function getOutputArgs(output: string | boolean | string[], index: number) {
     return undefined
   }
   return output
-}
-
-export default async function loadArvgConfig() {
-  let argvConfig = {} as IConfig
-  const fileConfig = (await loadConfigFile()) || {}
-  const argv = argvTranslateConfig()
-  const config = (fileConfig.default || {}) as IConfig
-  argvConfig = { ...config, ...argv }
-  return argvConfig
 }

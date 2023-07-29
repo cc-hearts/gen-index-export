@@ -2,11 +2,13 @@ import { hasOwnProperty } from '@cc-heart/utils'
 import { getOutputAbsolutePath } from './shard.js'
 import { genAbsolutePath } from './path.js'
 import { output } from './output.js'
-import loadArgvConfig from './argv.js'
+import loadArgvConfig from './command.js'
 import { getAllFileListMap, parseModuleMap } from './file.js'
 import type { IConfig, IOutputConfig } from '../types/helper'
+import { initHelp } from './command.js'
 
 export async function genExportIndex() {
+  initHelp()
   const argvConfig = await loadArgvConfig()
   const absolutePath = genAbsolutePath(argvConfig)
   const isIgnoreIndexPath = hasOwnProperty(argvConfig, 'ignoreIndexPath')
