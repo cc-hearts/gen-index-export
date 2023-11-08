@@ -1,5 +1,5 @@
 import { parse } from '@babel/parser'
-import tranverse from '@babel/traverse'
+import traverse from '@babel/traverse'
 import { readFileSync } from 'fs'
 
 export default (path: string) => {
@@ -8,12 +8,12 @@ export default (path: string) => {
     sourceType: 'unambiguous',
     plugins: ['typescript', 'jsx'],
   })
-  let isHasDefeaultExport = false
+  let isHasDefaultExport = false
   // @ts-ignore
-  tranverse.default(ast, {
+  traverse(ast, {
     ExportDefaultDeclaration() {
-      isHasDefeaultExport = true
+      isHasDefaultExport = true
     },
   })
-  return isHasDefeaultExport
+  return isHasDefaultExport
 }

@@ -7,6 +7,6 @@ import type { IConfig } from '../types/helper';
  */
 export declare function replaceSuffix(path: string, replaceSuffix?: string): string;
 export declare function replacePathIndex(path: string): string;
-export declare function toUpperCase(str: string): string;
-export declare function outputFile(path: string, ctx: string): void;
+export declare function capitalize(str: string): string;
+export declare function writeOutputFile(path: string, ctx: string): void;
 export declare function getOutputAbsolutePath(argv: IConfig): string[];

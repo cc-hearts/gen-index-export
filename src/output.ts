@@ -1,5 +1,7 @@
+import { capitalize } from '@cc-heart/utils'
 import type { IExport } from '../types/helper'
-import { onlyDefaultExport } from './config.js'
+import { ONLY_DEFAULT_EXPORT } from './constant.js'
+
 export function output(res: IExport[]): string {
   let str = ''
   if (!res) return str
@@ -10,10 +12,18 @@ export function output(res: IExport[]): string {
       while (set.has(name)) {
         name = `${name}_${Math.round(Math.random() * Math.pow(10, 5))}`
       }
+      // progress-bar -> progressBar
+      if (name.includes('-')) {
+        name = name
+          .split('-')
+          .map((target) => capitalize(target))
+          .join('')
+      }
+      name = capitalize(name)
       str += `export { default as ${name} } from './${item.exportPath}'\n`
       set.add(name)
     }
-    if (!onlyDefaultExport.includes(item.type)) {
+    if (!ONLY_DEFAULT_EXPORT.includes(item.type)) {
       str += `export * from './${item.exportPath}'\n`
     }
     return set

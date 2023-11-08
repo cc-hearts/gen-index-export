@@ -1,7 +1,6 @@
 import { writeFile } from 'fs'
 import { resolve } from 'path'
 import type { IConfig } from '../types/helper'
-import { loadEnd } from './loading.js'
 
 /**
  * Replaces the suffix of a given path with a specified suffix.
@@ -17,14 +16,14 @@ export function replacePathIndex(path: string) {
   return path.replace(/\/index$/, '')
 }
 
-export function toUpperCase(str: string) {
+export function capitalize(str: string) {
   return str.replace(/^[a-z]/, (char) => char.toUpperCase())
 }
 
-export function outputFile(path: string, ctx: string) {
+export function writeOutputFile(path: string, ctx: string) {
   writeFile(path, ctx, (err) => {
     if (err) console.error(err)
-    loadEnd(`write ${resolve(process.cwd(), path)} success`)
+    console.log(`write ${resolve(process.cwd(), path)} success`)
   })
 }
 

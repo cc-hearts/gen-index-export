@@ -14,7 +14,17 @@ export default [
         format: 'esm',
       },
     ],
-    external: ['fs', 'glob', '@babel/parser', '@babel/traverse'],
+    external: [
+      'fs',
+      'glob',
+      '@babel/parser',
+      '@babel/traverse',
+      'rollup',
+      '@rollup/plugin-commonjs',
+      '@rollup/plugin-typescript',
+      'rollup',
+      'commander',
+    ],
     plugins: [json(), _resolve(), commonjs(), pluginTypescript(tsConfig)],
   },
   {

@@ -1,7 +1,7 @@
 import { isAbsolute, resolve, relative } from 'path'
 import type { IConfig } from '../types/helper'
 
-export function genAbsolutePath({ dirs }: IConfig) {
+export function genModulesAbsolutePath({ dirs }: IConfig) {
   const getModulePath = (path: string) => {
     if (!isAbsolute(path)) {
       return resolve(process.cwd(), path)
@@ -9,8 +9,8 @@ export function genAbsolutePath({ dirs }: IConfig) {
     return path
   }
 
-  const modulePath = dirs.map((dir) => getModulePath(dir.path))
-  return modulePath
+  const modulesPath = dirs.map((dir) => getModulePath(dir.path))
+  return modulesPath
 }
 
 export function parseRelativePath(path: string) {

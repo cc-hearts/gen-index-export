@@ -1,8 +1,7 @@
-import { Command } from 'commander'
+import { loadConfig } from '@cc-heart/unplugin-load-file'
 import { getPackage } from '@cc-heart/utils-service'
-import { join } from 'path'
-import { fileName } from './config.js'
-import { existsSync } from 'fs'
+import { Command } from 'commander'
+
 import type { IConfig, ILoadConfig } from '../types/helper.js'
 const program = new Command()
 
@@ -11,18 +10,15 @@ const program = new Command()
  * @param path
  * @returns
  */
-export function loadConfigFile(path?: string): Promise<ILoadConfig> | null {
-  path = path || process.cwd()
-  let filePath: string | void = undefined
-  for (let i = 0; i < fileName.length; i++) {
-    const configFilePath = join(path, fileName[i])
-    if (existsSync(configFilePath)) {
-      filePath = configFilePath
-      break
-    }
-  }
-  if (filePath) {
-    return import(filePath)
+export async function loadConfigFile(): Promise<ILoadConfig | null> {
+  try {
+    const config = await loadConfig<ILoadConfig>({
+      filename: 'gen-export.config',
+      suffixList: ['ts', 'mts', 'mjs', 'js'],
+    })
+    return config
+  } catch (e) {
+    console.error('[loadConfigFile] load config file error', e)
   }
   return null
 }
@@ -61,7 +57,7 @@ export default async function loadArgvConfig() {
   let argvConfig = {} as IConfig
   const fileConfig = (await loadConfigFile()) || {}
   const argv = translateArgvByCommander()
-  const config = (fileConfig.default || {}) as IConfig
+  const config = (fileConfig || {}) as IConfig
   argvConfig = { ...config, ...argv }
   return argvConfig
 }

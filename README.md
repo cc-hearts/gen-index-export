@@ -10,7 +10,7 @@ Using this package you can parse all exported files in a certain path now suppor
 npm install -D @cc-heart/gen-index-export
 ```
 
-create the `genIndexExport.config.js` file in the root path of your project project, and write to the following configuration file:
+create the `gen-export.config.js` file in the root path of your project project, and write to the following configuration file:
 
 ```js
 import { defineConfig } from '@cc-heart/gen-index-export'

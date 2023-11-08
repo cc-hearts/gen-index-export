@@ -1,22 +1,25 @@
 import glob from 'glob'
-import { relative, extname, basename } from 'path'
-import { onlyDefaultExport, suffix } from './config.js'
-import isHasDefaultExport from './parse-default.js'
-import { replaceSuffix, replacePathIndex, toUpperCase } from './shard.js'
+import { basename, extname, relative } from 'path'
 import type { IExport, IOutputConfig } from '../types/helper.js'
+import { EXPORT_SUFFIX, ONLY_DEFAULT_EXPORT } from './constant.js'
+import isHasDefaultExport from './parse-default.js'
+import { capitalize, replacePathIndex, replaceSuffix } from './shard.js'
+
 export async function getAllFileListMap(
   path: string,
   outputAbsolutePath: string[],
   outputConfig: IOutputConfig
 ) {
   const map = new Map<string, Set<[string, string]>>()
-  suffix.forEach((key) => {
+  EXPORT_SUFFIX.forEach((key) => {
     map.set(key, new Set())
   })
-  let globPath = `${path}/*.{${suffix.join(',')}}`
+
+  let globPath = `${path}/*.{${EXPORT_SUFFIX.join(',')}}`
   if (outputConfig.recursive) {
-    globPath = `${path}/**/*.{${suffix.join(',')}}`
+    globPath = `${path}/**/*.{${EXPORT_SUFFIX.join(',')}}`
   }
+
   let filePathList = await glob(globPath)
   filePathList = filePathList.filter(
     (path) => !outputAbsolutePath.includes(path)
@@ -39,7 +42,7 @@ export function parseModuleMap(
   let result: IExport[] = []
   for (const [suffix, fileSet] of map) {
     for (let [file, absolutePath] of fileSet.values()) {
-      const componentName = toUpperCase(basename(file, `.${suffix}`))
+      const componentName = capitalize(basename(file, `.${suffix}`))
       let newPath = file
       switch (suffix) {
         case 'js':
@@ -54,7 +57,7 @@ export function parseModuleMap(
       }
       const exportInfo = {
         isDefaultExport:
-          onlyDefaultExport.includes(suffix) ||
+          ONLY_DEFAULT_EXPORT.includes(suffix) ||
           isHasDefaultExport(absolutePath),
         exportName: componentName,
         exportPath: newPath,

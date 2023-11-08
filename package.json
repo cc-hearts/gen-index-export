@@ -1,9 +1,9 @@
 {
   "name": "@cc-heart/gen-index-export",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "Generate the exported statement",
   "main": "index.js",
-  "bin": "dist/bin/index.js",
+  "bin": "dist/bin/scripts.mjs",
   "types": "dist/types/src/define.d.ts",
   "type": "module",
   "exports": {
@@ -14,9 +14,10 @@
   },
   "scripts": {
     "prebuild": "rimraf dist",
+    "build": "npm run prebuild && tsc -p tsconfig.build.json && rollup -c && npm run postbuild",
+    "postbuild": "node ./scripts/genBinFile.mjs",
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "build": "npm run prebuild && tsc -p tsconfig.build.json && rollup -c",
     "playground": "ts-node-esm index.ts --path ./example/a ./example/b --output ./example/a/index.ts ./example/b/test.ts --recursive --ignoreIndexPath",
     "deploy": "npm run prebuild && npm run build",
     "prettier": "npx prettier --write ."
@@ -27,23 +28,26 @@
   "author": "heart",
   "license": "MIT",
   "dependencies": {
-    "@babel/parser": "^7.22.4",
-    "@babel/traverse": "^7.22.4",
-    "@cc-heart/utils": "^2.0.12",
+    "@babel/parser": "^7.23.0",
+    "@babel/traverse": "^7.23.2",
+    "@cc-heart/unplugin-load-file": "^1.0.0",
+    "@cc-heart/utils": "^4.0.6",
     "@cc-heart/utils-service": "^0.0.2",
-    "@rollup/plugin-json": "^6.0.0",
-    "commander": "^11.0.0",
+    "@rollup/plugin-json": "^6.0.1",
+    "commander": "^11.1.0",
     "glob": "^9.3.5",
-    "ora": "^7.0.0"
+    "ora": "^7.0.1"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.1.0",
-    "@rollup/plugin-node-resolve": "^15.0.2",
-    "@rollup/plugin-typescript": "^11.1.0",
-    "@types/babel__traverse": "^7.20.1",
-    "@types/node": "^18.16.2",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@types/babel__traverse": "^7.20.4",
+    "@types/node": "^18.18.8",
+    "@vitest/coverage-c8": "^0.33.0",
+    "@vitest/coverage-v8": "^0.34.6",
     "rimraf": "^4.4.1",
-    "tslib": "^2.5.0",
-    "vitest": "^0.29.8"
+    "tslib": "^2.6.2",
+    "vitest": "^0.34.6"
   }
 }
