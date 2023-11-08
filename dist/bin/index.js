@@ -10,7 +10,7 @@ import { readFile } from 'node:fs/promises';
 import { Command } from 'commander';
 import glob from 'glob';
 import { parse } from '@babel/parser';
-import traverse from '@babel/traverse';
+import _traverse from '@babel/traverse';
 
 /**
  * Replaces the suffix of a given path with a specified suffix.
@@ -254,6 +254,8 @@ async function loadArgvConfig() {
 const EXPORT_SUFFIX = ['js', 'jsx', 'ts', 'tsx', 'vue'];
 const ONLY_DEFAULT_EXPORT = ['vue'];
 
+// @ts-ignore
+const traverse = _traverse.default || _traverse;
 var isHasDefaultExport = (path) => {
     const code = readFileSync(path, 'utf-8');
     const ast = parse(code, {
