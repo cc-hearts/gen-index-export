@@ -3,6 +3,7 @@ import { getPackage } from '@cc-heart/utils-service'
 import { Command } from 'commander'
 
 import type { IConfig, ILoadConfig } from '../types/helper.js'
+import { EXPORT_SUFFIX } from './constant.js'
 const program = new Command()
 
 /**
@@ -30,28 +31,24 @@ export function initHelp() {
     .usage('[options]')
     .option('-o, --output [type...]', 'output file path')
     .option('-p, --path [type...]', 'watch file path')
-    .option('--recursive', 'watch file is recursive')
-    .option('--ignoreIndexPath', 'ignore watch index file')
+    .option('-r --recursive [type...]', 'watch file is recursive')
+    .option('-s --suffix type[...]', 'file extensions for export are supported')
 
   program.parse()
 }
-
+type ObjectMapArrayObject<T extends Record<string, unknown>> = {
+  [k in keyof T]: Array<T[k]>
+}
 function translateArgvByCommander() {
-  const opts = program.opts()
-  let paths: string[] | undefined
-  if (opts.path instanceof Array) {
-    if (opts.path.length === 1) {
-      ;[paths] = opts.path
-    } else {
-      paths = [...opts.path]
-    }
-  }
-  if (paths === undefined) return {} as IConfig['dirs']
-  const outputs = opts.output || []
-  const dirs: IConfig['dirs'] = paths.map((path, i) => {
-    return { path, output: outputs[i] }
+  const opts: ObjectMapArrayObject<IConfig['dirs'][number]> = program.opts()
+
+  const { path = [], output = [], recursive = [], suffix = [] } = opts
+  if (path.length === 0) return {}
+
+  const dirs: IConfig['dirs'] = path.map((path, i) => {
+    return { path, output: output?.[i] || '', recursive: recursive?.[i] || false, suffix: suffix[i] || EXPORT_SUFFIX }
   })
-  return { ...opts, dirs }
+  return { dirs }
 }
 export default async function loadArgvConfig() {
   let argvConfig = {} as IConfig

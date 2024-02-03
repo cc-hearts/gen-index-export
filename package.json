@@ -18,15 +18,18 @@
     "postbuild": "node ./scripts/genBinFile.mjs",
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "playground": "ts-node-esm index.ts --path ./example/a ./example/b --output ./example/a/index.ts ./example/b/test.ts --recursive --ignoreIndexPath",
+    "playground": "node --loader ts-node/esm index.ts --path ./example/base ./example/recursive --output ./example/base/index.ts ./example/recursive/index.ts -r false true",
     "deploy": "npm run prebuild && npm run build",
     "prettier": "npx prettier --write ."
   },
   "keywords": [
     "export"
   ],
-  "author": "heart",
+  "author": "Carl Chen",
   "license": "MIT",
+  "peerDependencies": {
+    "rollup": "^4.9.6"
+  },
   "dependencies": {
     "@babel/parser": "^7.23.5",
     "@babel/traverse": "^7.23.5",
@@ -47,7 +50,9 @@
     "@vitest/coverage-c8": "^0.33.0",
     "@vitest/coverage-v8": "^0.34.6",
     "rimraf": "^4.4.1",
+    "ts-node": "^10.9.2",
     "tslib": "^2.6.2",
+    "typescript": "^5.3.3",
     "vitest": "^0.34.6"
   }
 }

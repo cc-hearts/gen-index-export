@@ -1,6 +1,5 @@
 import { writeFile } from 'fs'
 import { resolve } from 'path'
-import type { IConfig } from '../types/helper'
 
 /**
  * Replaces the suffix of a given path with a specified suffix.
@@ -27,8 +26,6 @@ export function writeOutputFile(path: string, ctx: string) {
   })
 }
 
-export function getOutputAbsolutePath(argv: IConfig) {
-  const { dirs } = argv
-  const output = dirs.map((dir) => dir.output!).filter(Boolean)
-  return output.map((path) => resolve(process.cwd(), path))
+export function getOutputAbsolutePath(relativePath: string) {
+  return resolve(process.cwd(), relativePath)
 }

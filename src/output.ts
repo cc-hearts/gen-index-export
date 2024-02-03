@@ -2,7 +2,7 @@ import { capitalize } from '@cc-heart/utils'
 import type { IExport } from '../types/helper'
 import { ONLY_DEFAULT_EXPORT } from './constant.js'
 
-export function output(res: IExport[]): string {
+export function formatOutput(res: IExport[]): string {
   let str = ''
   if (!res) return str
   res.reduce<Set<string>>((set, item) => {
