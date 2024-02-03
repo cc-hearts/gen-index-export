@@ -30,28 +30,21 @@ export function initHelp() {
     .usage('[options]')
     .option('-o, --output [type...]', 'output file path')
     .option('-p, --path [type...]', 'watch file path')
-    .option('--recursive', 'watch file is recursive')
-    .option('--ignoreIndexPath', 'ignore watch index file')
+    .option('-r --recursive [type...]', 'watch file is recursive')
 
   program.parse()
 }
-
+type ObjectMapArrayObject<T extends Record<string, unknown>> = {
+  [k in keyof T]: Array<T[k]>
+}
 function translateArgvByCommander() {
-  const opts = program.opts()
-  let paths: string[] | undefined
-  if (opts.path instanceof Array) {
-    if (opts.path.length === 1) {
-      ;[paths] = opts.path
-    } else {
-      paths = [...opts.path]
-    }
-  }
-  if (paths === undefined) return {} as IConfig['dirs']
-  const outputs = opts.output || []
-  const dirs: IConfig['dirs'] = paths.map((path, i) => {
-    return { path, output: outputs[i] }
+  const opts: ObjectMapArrayObject<IConfig['dirs'][number]> = program.opts()
+
+  const { path, output, recursive } = opts
+  const dirs: IConfig['dirs'] = path.map((path, i) => {
+    return { path, output: output?.[i] || '', recursive: recursive?.[i] || false }
   })
-  return { ...opts, dirs }
+  return { dirs }
 }
 export default async function loadArgvConfig() {
   let argvConfig = {} as IConfig

@@ -1,38 +1,27 @@
-import { hasOwn } from '@cc-heart/utils'
-import type { IConfig, IOutputConfig } from '../types/helper'
+import type { IConfig } from '../types/helper'
 import loadArgvConfig, { initHelp } from './command.js'
 import { getAllFileListMap, parseModuleMap } from './file.js'
-import { output } from './output.js'
-import { genModulesAbsolutePath } from './path.js'
-import { getOutputAbsolutePath } from './shard.js'
+import { formatOutput } from './output.js'
+
+const getOutput = async (
+  dir: IConfig['dirs'][number]
+) => {
+  const exportMap = await getAllFileListMap(dir)
+  return formatOutput(parseModuleMap(exportMap))
+}
 
 export async function genExportIndex() {
   initHelp()
   const argvConfig = await loadArgvConfig()
-  const absolutePath = genModulesAbsolutePath(argvConfig)
-  const isIgnoreIndexPath = hasOwn(argvConfig, 'ignoreIndexPath')
-
-  const getOutput = async (
-    path: string,
-    argv: IConfig,
-    outputConfig: IOutputConfig
-  ) => {
-    const outputAbsolutePath = getOutputAbsolutePath(argv)
-    const exportMap = await getAllFileListMap(
-      path,
-      outputAbsolutePath,
-      outputConfig
-    )
-    return output(parseModuleMap(exportMap, isIgnoreIndexPath))
-  }
-
+  // const isIgnoreIndexPath = hasOwn(argvConfig, 'ignoreIndexPath')
   const fileMap = new Map<string, string>()
   const stdinSet = new Set<string>()
+  const { dirs = [] } = argvConfig
   await Promise.all(
-    absolutePath.map(async (path, index) => {
-      const recursive = argvConfig.recursive || false
-      const ctx = await getOutput(path, argvConfig, { recursive })
-      const output = argvConfig.dirs[index]?.output || Symbol.for('stdin') // default output stdin
+    dirs.map(async (dir, index) => {
+      const ctx = await getOutput(dir)
+      const output = argvConfig.dirs[index]?.output || Symbol.for('stdin')
+
       if (output === Symbol.for('stdin')) {
         stdinSet.add(ctx)
       } else {

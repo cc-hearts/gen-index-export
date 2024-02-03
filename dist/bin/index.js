@@ -1,5 +1,6 @@
+#!/usr/bin/env node
 import { writeFile, readFileSync } from 'fs';
-import { resolve, extname, relative, basename, isAbsolute } from 'path';
+import { resolve, extname, relative, basename } from 'path';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 import { rm, writeFile as writeFile$1, readFile as readFile$1 } from 'fs/promises';
@@ -33,30 +34,6 @@ function writeOutputFile(path, ctx) {
             console.error(err);
         console.log(`write ${resolve(process.cwd(), path)} success`);
     });
-}
-function getOutputAbsolutePath(argv) {
-    const { dirs } = argv;
-    const output = dirs.map((dir) => dir.output).filter(Boolean);
-    return output.map((path) => resolve(process.cwd(), path));
-}
-
-/**
- * Capitalizes the first letter of a string.
- *
- * @param target - The string to be capitalized.
- * @return - The capitalized string.
- */
-const capitalize = (target) => (target.charAt(0).toUpperCase() + target.slice(1));
-
-/**
- * Checks if the given object has its own property.
- *
- * @param {object} obj - The object to check.
- * @param {string} prop - The property to check.
- * @return {boolean} Returns true if the object has its own property, otherwise false.
- */
-function hasOwn(obj, prop) {
-    return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
 function getFileExtension(path) {
@@ -272,19 +249,20 @@ var isHasDefaultExport = (path) => {
     return isHasDefaultExport;
 };
 
-async function getAllFileListMap(path, outputAbsolutePath, outputConfig) {
+async function getAllFileListMap(dir) {
+    const { path, recursive, output } = dir;
     const map = new Map();
     EXPORT_SUFFIX.forEach((key) => {
         map.set(key, new Set());
     });
     let globPath = `${path}/*.{${EXPORT_SUFFIX.join(',')}}`;
-    if (outputConfig.recursive) {
+    if (recursive) {
         globPath = `${path}/**/*.{${EXPORT_SUFFIX.join(',')}}`;
     }
-    let filePathList = await glob(globPath);
-    filePathList = filePathList.filter((path) => !outputAbsolutePath.includes(path));
+    const outputPath = output.replace(/^\.\//, '');
+    const filePathList = (await glob(globPath)).filter(path => path !== outputPath);
     filePathList.forEach((filePath) => {
-        // 获取相对路径
+        // get relative path
         const suffixName = extname(filePath).split('.')[1];
         if (suffixName && map.has(suffixName)) {
             map.get(suffixName).add([relative(path, filePath), filePath]);
@@ -322,7 +300,15 @@ function parseModuleMap(map, isIgnoreIndexPath = false) {
     return result;
 }
 
-function output(res) {
+/**
+ * Capitalizes the first letter of a string.
+ *
+ * @param target - The string to be capitalized.
+ * @return - The capitalized string.
+ */
+const capitalize = (target) => (target.charAt(0).toUpperCase() + target.slice(1));
+
+function formatOutput(res) {
     let str = '';
     if (!res)
         return str;
@@ -353,33 +339,20 @@ function output(res) {
     return str;
 }
 
-function genModulesAbsolutePath({ dirs }) {
-    const getModulePath = (path) => {
-        if (!isAbsolute(path)) {
-            return resolve(process.cwd(), path);
-        }
-        return path;
-    };
-    const modulesPath = dirs.map((dir) => getModulePath(dir.path));
-    return modulesPath;
-}
-
+const getOutput = async (dir) => {
+    const exportMap = await getAllFileListMap(dir);
+    return formatOutput(parseModuleMap(exportMap));
+};
 async function genExportIndex() {
     initHelp();
     const argvConfig = await loadArgvConfig();
-    const absolutePath = genModulesAbsolutePath(argvConfig);
-    const isIgnoreIndexPath = hasOwn(argvConfig, 'ignoreIndexPath');
-    const getOutput = async (path, argv, outputConfig) => {
-        const outputAbsolutePath = getOutputAbsolutePath(argv);
-        const exportMap = await getAllFileListMap(path, outputAbsolutePath, outputConfig);
-        return output(parseModuleMap(exportMap, isIgnoreIndexPath));
-    };
+    // const isIgnoreIndexPath = hasOwn(argvConfig, 'ignoreIndexPath')
     const fileMap = new Map();
     const stdinSet = new Set();
-    await Promise.all(absolutePath.map(async (path, index) => {
-        const recursive = argvConfig.recursive || false;
-        const ctx = await getOutput(path, argvConfig, { recursive });
-        const output = argvConfig.dirs[index]?.output || Symbol.for('stdin'); // default output stdin
+    const { dirs = [] } = argvConfig;
+    await Promise.all(dirs.map(async (dir, index) => {
+        const ctx = await getOutput(dir);
+        const output = argvConfig.dirs[index]?.output || Symbol.for('stdin');
         if (output === Symbol.for('stdin')) {
             stdinSet.add(ctx);
         }

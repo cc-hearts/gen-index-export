@@ -1,13 +1,9 @@
 export interface IConfig {
     dirs: Array<{
         path: string;
-        output?: string;
+        output: string;
         recursive?: boolean;
     }>;
-    ignoreIndexPath?: boolean;
-    recursive?: boolean;
-    config?: string;
-    output?: string[];
 }
 export interface IExport {
     isDefaultExport?: boolean;

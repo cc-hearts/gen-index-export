@@ -1,4 +1,3 @@
-import type { IConfig } from '../types/helper';
 /**
  * Replaces the suffix of a given path with a specified suffix.
  * @param {string} path - The path to modify.
@@ -9,4 +8,4 @@ export declare function replaceSuffix(path: string, replaceSuffix?: string): str
 export declare function replacePathIndex(path: string): string;
 export declare function capitalize(str: string): string;
 export declare function writeOutputFile(path: string, ctx: string): void;
-export declare function getOutputAbsolutePath(argv: IConfig): string[];
+export declare function getOutputAbsolutePath(relativePath: string): string;
