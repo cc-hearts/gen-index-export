@@ -1,7 +1,7 @@
 export interface IConfig {
     dirs: Array<{
         path: string;
-        output: string;
+        output?: string;
         recursive?: boolean;
         suffix?: string[];
     }>;

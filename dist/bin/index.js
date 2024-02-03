@@ -244,12 +244,19 @@ async function getAllFileListMap(dir) {
     exportSuffix.forEach((key) => {
         map.set(key, new Set());
     });
-    let globPath = `${path}/*.{${EXPORT_SUFFIX.join(',')}}`;
+    let globPath = `${path}/*.{${exportSuffix.join(',')}}`;
     if (recursive) {
-        globPath = `${path}/**/*.{${EXPORT_SUFFIX.join(',')}}`;
+        globPath = `${path}/**/*.{${exportSuffix.join(',')}}`;
     }
-    const outputPath = output.replace(/^\.\//, '');
-    const filePathList = (await glob(globPath)).filter(path => path !== outputPath);
+    if (exportSuffix.length === 1) {
+        globPath = globPath.replace(/{(.*)}$/, '$1');
+    }
+    debugger;
+    let filePathList = (await glob(globPath));
+    if (output) {
+        const outputPath = output.replace(/^\.\//, '');
+        filePathList = filePathList.filter(path => path !== outputPath);
+    }
     filePathList.forEach((filePath) => {
         // get relative path
         const suffixName = extname(filePath).split('.')[1];
