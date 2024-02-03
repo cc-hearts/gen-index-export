@@ -19,6 +19,10 @@ export async function getAllFileListMap(
     globPath = `${path}/**/*.{${exportSuffix.join(',')}}`
   }
 
+  if (exportSuffix.length === 1) {
+    globPath = globPath.replace(/{(.*)}$/, '$1')
+  }
+
   let filePathList = (await glob(globPath))
   if (output) {
     const outputPath = output.replace(/^\.\//, '')

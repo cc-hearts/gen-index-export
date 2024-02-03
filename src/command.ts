@@ -42,7 +42,9 @@ type ObjectMapArrayObject<T extends Record<string, unknown>> = {
 function translateArgvByCommander() {
   const opts: ObjectMapArrayObject<IConfig['dirs'][number]> = program.opts()
 
-  const { path, output = [], recursive = [], suffix = [] } = opts
+  const { path = [], output = [], recursive = [], suffix = [] } = opts
+  if (path.length === 0) return {}
+
   const dirs: IConfig['dirs'] = path.map((path, i) => {
     return { path, output: output?.[i] || '', recursive: recursive?.[i] || false, suffix: suffix[i] || EXPORT_SUFFIX }
   })

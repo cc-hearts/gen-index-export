@@ -1,8 +1,9 @@
 export interface IConfig {
     dirs: Array<{
         path: string;
-        output: string;
+        output?: string;
         recursive?: boolean;
+        suffix?: string[];
     }>;
 }
 export interface IExport {
@@ -13,7 +14,4 @@ export interface IExport {
 }
 export interface ILoadConfig {
     default?: IConfig;
-}
-export interface IOutputConfig {
-    recursive?: boolean;
 }

@@ -22,9 +22,6 @@ import _traverse from '@babel/traverse';
 function replaceSuffix(path, replaceSuffix = '') {
     return path.replace(/\..*?$/, replaceSuffix);
 }
-function replacePathIndex(path) {
-    return path.replace(/\/index$/, '');
-}
 function capitalize$1(str) {
     return str.replace(/^[a-z]/, (char) => char.toUpperCase());
 }
@@ -169,6 +166,9 @@ function getPackage(path) {
     return JSON.parse(packages);
 }
 
+const EXPORT_SUFFIX = ['js', 'jsx', 'ts', 'tsx', 'vue'];
+const ONLY_DEFAULT_EXPORT = ['vue'];
+
 const program = new Command();
 /**
  * load config file
@@ -196,28 +196,19 @@ function initHelp() {
         .usage('[options]')
         .option('-o, --output [type...]', 'output file path')
         .option('-p, --path [type...]', 'watch file path')
-        .option('--recursive', 'watch file is recursive')
-        .option('--ignoreIndexPath', 'ignore watch index file');
+        .option('-r --recursive [type...]', 'watch file is recursive')
+        .option('-s --suffix type[...]', 'file extensions for export are supported');
     program.parse();
 }
 function translateArgvByCommander() {
     const opts = program.opts();
-    let paths;
-    if (opts.path instanceof Array) {
-        if (opts.path.length === 1) {
-            [paths] = opts.path;
-        }
-        else {
-            paths = [...opts.path];
-        }
-    }
-    if (paths === undefined)
+    const { path = [], output = [], recursive = [], suffix = [] } = opts;
+    if (path.length === 0)
         return {};
-    const outputs = opts.output || [];
-    const dirs = paths.map((path, i) => {
-        return { path, output: outputs[i] };
+    const dirs = path.map((path, i) => {
+        return { path, output: output?.[i] || '', recursive: recursive?.[i] || false, suffix: suffix[i] || EXPORT_SUFFIX };
     });
-    return { ...opts, dirs };
+    return { dirs };
 }
 async function loadArgvConfig() {
     let argvConfig = {};
@@ -227,9 +218,6 @@ async function loadArgvConfig() {
     argvConfig = { ...config, ...argv };
     return argvConfig;
 }
-
-const EXPORT_SUFFIX = ['js', 'jsx', 'ts', 'tsx', 'vue'];
-const ONLY_DEFAULT_EXPORT = ['vue'];
 
 // @ts-ignore
 const traverse = _traverse.default || _traverse;
@@ -252,15 +240,23 @@ var isHasDefaultExport = (path) => {
 async function getAllFileListMap(dir) {
     const { path, recursive, output } = dir;
     const map = new Map();
-    EXPORT_SUFFIX.forEach((key) => {
+    const exportSuffix = dir.suffix || EXPORT_SUFFIX;
+    exportSuffix.forEach((key) => {
         map.set(key, new Set());
     });
-    let globPath = `${path}/*.{${EXPORT_SUFFIX.join(',')}}`;
+    let globPath = `${path}/*.{${exportSuffix.join(',')}}`;
     if (recursive) {
-        globPath = `${path}/**/*.{${EXPORT_SUFFIX.join(',')}}`;
+        globPath = `${path}/**/*.{${exportSuffix.join(',')}}`;
     }
-    const outputPath = output.replace(/^\.\//, '');
-    const filePathList = (await glob(globPath)).filter(path => path !== outputPath);
+    if (exportSuffix.length === 1) {
+        globPath = globPath.replace(/{(.*)}$/, '$1');
+    }
+    debugger;
+    let filePathList = (await glob(globPath));
+    if (output) {
+        const outputPath = output.replace(/^\.\//, '');
+        filePathList = filePathList.filter(path => path !== outputPath);
+    }
     filePathList.forEach((filePath) => {
         // get relative path
         const suffixName = extname(filePath).split('.')[1];
@@ -270,7 +266,7 @@ async function getAllFileListMap(dir) {
     });
     return map;
 }
-function parseModuleMap(map, isIgnoreIndexPath = false) {
+function parseModuleMap(map) {
     let result = [];
     for (const [suffix, fileSet] of map) {
         for (let [file, absolutePath] of fileSet.values()) {
@@ -282,9 +278,6 @@ function parseModuleMap(map, isIgnoreIndexPath = false) {
                 case 'ts':
                 case 'tsx':
                     newPath = replaceSuffix(file);
-                    if (isIgnoreIndexPath) {
-                        newPath = replacePathIndex(newPath);
-                    }
                     break;
             }
             const exportInfo = {
