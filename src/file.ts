@@ -3,22 +3,21 @@ import { basename, extname, relative } from 'path'
 import type { IConfig, IExport } from '../types/helper.js'
 import { EXPORT_SUFFIX, ONLY_DEFAULT_EXPORT } from './constant.js'
 import isHasDefaultExport from './parse-default.js'
-import { capitalize, replacePathIndex, replaceSuffix } from './shard.js'
+import { capitalize, replaceSuffix } from './shard.js'
 
 export async function getAllFileListMap(
   dir: IConfig['dirs'][number]
 ) {
   const { path, recursive, output } = dir
   const map = new Map<string, Set<[string, string]>>()
-
-  EXPORT_SUFFIX.forEach((key) => {
+  const exportSuffix = dir.suffix || EXPORT_SUFFIX
+  exportSuffix.forEach((key) => {
     map.set(key, new Set())
   })
-  let globPath = `${path}/*.{${EXPORT_SUFFIX.join(',')}}`
+  let globPath = `${path}/*.{${exportSuffix.join(',')}}`
   if (recursive) {
-    globPath = `${path}/**/*.{${EXPORT_SUFFIX.join(',')}}`
+    globPath = `${path}/**/*.{${exportSuffix.join(',')}}`
   }
-
 
   let filePathList = (await glob(globPath))
   if (output) {
@@ -39,7 +38,6 @@ export async function getAllFileListMap(
 
 export function parseModuleMap(
   map: Map<string, Set<[string, string]>>,
-  isIgnoreIndexPath = false
 ) {
   let result: IExport[] = []
   for (const [suffix, fileSet] of map) {
@@ -52,9 +50,6 @@ export function parseModuleMap(
         case 'ts':
         case 'tsx':
           newPath = replaceSuffix(file)
-          if (isIgnoreIndexPath) {
-            newPath = replacePathIndex(newPath)
-          }
           break
       }
       const exportInfo = {

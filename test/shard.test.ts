@@ -39,6 +39,6 @@ describe('capitalize func', () => {
 
 describe('getOutputAbsolutePath func', () => {
   it('should return absolute path list when dirs.output path exist and is a array', () => {
-    expect(getOutputAbsolutePath({ dirs: [{ path: '', output: './test' }] })).toEqual(['/mock/test'])
+    expect(getOutputAbsolutePath('./test')).toEqual('/mock/test')
   })
 })

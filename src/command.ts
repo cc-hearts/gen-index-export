@@ -3,6 +3,7 @@ import { getPackage } from '@cc-heart/utils-service'
 import { Command } from 'commander'
 
 import type { IConfig, ILoadConfig } from '../types/helper.js'
+import { EXPORT_SUFFIX } from './constant.js'
 const program = new Command()
 
 /**
@@ -31,6 +32,7 @@ export function initHelp() {
     .option('-o, --output [type...]', 'output file path')
     .option('-p, --path [type...]', 'watch file path')
     .option('-r --recursive [type...]', 'watch file is recursive')
+    .option('-s --suffix type[...]', 'file extensions for export are supported')
 
   program.parse()
 }
@@ -40,9 +42,9 @@ type ObjectMapArrayObject<T extends Record<string, unknown>> = {
 function translateArgvByCommander() {
   const opts: ObjectMapArrayObject<IConfig['dirs'][number]> = program.opts()
 
-  const { path, output, recursive } = opts
+  const { path, output = [], recursive = [], suffix = [] } = opts
   const dirs: IConfig['dirs'] = path.map((path, i) => {
-    return { path, output: output?.[i] || '', recursive: recursive?.[i] || false }
+    return { path, output: output?.[i] || '', recursive: recursive?.[i] || false, suffix: suffix[i] || EXPORT_SUFFIX }
   })
   return { dirs }
 }
