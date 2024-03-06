@@ -23,6 +23,11 @@ export async function loadConfigFile(): Promise<ILoadConfig | null> {
   }
   return null
 }
+
+function parseBooleanValues(value?: string) {
+  return value === "true" ? true : false;
+}
+
 export function initHelp() {
   const { version } = getPackage()
   program
@@ -46,7 +51,7 @@ function translateArgvByCommander() {
   if (path.length === 0) return {}
 
   const dirs: IConfig['dirs'] = path.map((path, i) => {
-    return { path, output: output?.[i] || '', recursive: recursive?.[i] || false, suffix: suffix[i] || EXPORT_SUFFIX }
+    return { path, output: output?.[i] || '', recursive: recursive?.[i] ? parseBooleanValues(recursive[i] as string) : false, suffix: suffix[i] || EXPORT_SUFFIX }
   })
   return { dirs }
 }

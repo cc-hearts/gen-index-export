@@ -2,7 +2,7 @@ export interface IConfig {
   dirs: Array<{
     path: string
     output?: string
-    recursive?: boolean
+    recursive?: string | boolean
     suffix?: string[]
   }>
 }
