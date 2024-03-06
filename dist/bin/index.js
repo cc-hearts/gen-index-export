@@ -188,6 +188,9 @@ async function loadConfigFile() {
     }
     return null;
 }
+function parseBooleanValues(value) {
+    return value === "true" ? true : false;
+}
 function initHelp() {
     const { version } = getPackage();
     program
@@ -206,7 +209,7 @@ function translateArgvByCommander() {
     if (path.length === 0)
         return {};
     const dirs = path.map((path, i) => {
-        return { path, output: output?.[i] || '', recursive: recursive?.[i] || false, suffix: suffix[i] || EXPORT_SUFFIX };
+        return { path, output: output?.[i] || '', recursive: recursive?.[i] ? parseBooleanValues(recursive[i]) : false, suffix: suffix[i] || EXPORT_SUFFIX };
     });
     return { dirs };
 }
