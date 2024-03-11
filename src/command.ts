@@ -24,8 +24,8 @@ export async function loadConfigFile(): Promise<ILoadConfig | null> {
   return null
 }
 
-function parseBooleanValues(value?: string) {
-  return value === "true" ? true : false;
+function parseBooleanValues(options?: (string | boolean | undefined)[]) {
+  return options?.map(target => target === 'true') || []
 }
 
 export function initHelp() {
@@ -36,8 +36,9 @@ export function initHelp() {
     .usage('[options]')
     .option('-o, --output [type...]', 'output file path')
     .option('-p, --path [type...]', 'watch file path')
-    .option('-r --recursive [type...]', 'watch file is recursive')
-    .option('-s --suffix type[...]', 'file extensions for export are supported')
+    .option('-r, --recursive [type...]', 'watch file is recursive')
+    .option('-di, --dir-index [type...]', 'export directory index when recursive is false and dir-index is true')
+    .option('-s, --suffix type[...]', 'file extensions for export are supported')
 
   program.parse()
 }
@@ -47,11 +48,22 @@ type ObjectMapArrayObject<T extends Record<string, unknown>> = {
 function translateArgvByCommander() {
   const opts: ObjectMapArrayObject<IConfig['dirs'][number]> = program.opts()
 
-  const { path = [], output = [], recursive = [], suffix = [] } = opts
+  const { path = [], output = [], suffix = [] } = opts
   if (path.length === 0) return {}
 
+  let { recursive = [], dirIndex = [] } = opts
+
+  recursive = parseBooleanValues(recursive)
+  dirIndex = parseBooleanValues(dirIndex)
+
   const dirs: IConfig['dirs'] = path.map((path, i) => {
-    return { path, output: output?.[i] || '', recursive: recursive?.[i] ? parseBooleanValues(recursive[i] as string) : false, suffix: suffix[i] || EXPORT_SUFFIX }
+    return {
+      path,
+      output: output?.[i] || '',
+      recursive: recursive[i],
+      suffix: suffix[i] || EXPORT_SUFFIX,
+      dirIndex: dirIndex[i],
+    }
   })
   return { dirs }
 }
@@ -61,5 +73,6 @@ export default async function loadArgvConfig() {
   const argv = translateArgvByCommander()
   const config = (fileConfig || {}) as IConfig
   argvConfig = { ...config, ...argv }
+
   return argvConfig
 }

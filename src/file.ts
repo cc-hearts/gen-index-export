@@ -8,15 +8,18 @@ import { capitalize, replaceSuffix } from './shard.js'
 export async function getAllFileListMap(
   dir: IConfig['dirs'][number]
 ) {
-  const { path, recursive, output } = dir
+  const { path, recursive, output, dirIndex } = dir
   const map = new Map<string, Set<[string, string]>>()
   const exportSuffix = dir.suffix || EXPORT_SUFFIX
+
   exportSuffix.forEach((key) => {
     map.set(key, new Set())
   })
-  let globPath = `${path}/*.{${exportSuffix.join(',')}}`
+
+  const suffixStr = exportSuffix.join(',')
+  let globPath = `${path}/*.{${suffixStr}}`
   if (recursive) {
-    globPath = `${path}/**/*.{${exportSuffix.join(',')}}`
+    globPath = `${path}/**/*.{${suffixStr}}`
   }
 
   if (exportSuffix.length === 1) {
@@ -24,6 +27,13 @@ export async function getAllFileListMap(
   }
 
   let filePathList = (await glob(globPath))
+
+  if (dirIndex) {
+    const fileDirIndexPath = `${path}/*/index.{${suffixStr}}`
+    const indexFilePathList = (await glob(fileDirIndexPath))
+    filePathList = filePathList.concat(indexFilePathList)
+  }
+
   if (output) {
     const outputPath = output.replace(/^\.\//, '')
     filePathList = filePathList.filter(path => path !== outputPath)

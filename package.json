@@ -18,7 +18,7 @@
     "postbuild": "node ./scripts/genBinFile.mjs",
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "playground": "node --loader ts-node/esm index.ts --path ./example/base ./example/recursive --output ./example/base/index.ts ./example/recursive/index.ts -r false true",
+    "playground": "node --loader ts-node/esm index.ts --path ./example/base ./example/recursive --output ./example/base/index.ts ./example/recursive/index.ts -r false true -di true true",
     "deploy": "npm run prebuild && npm run build",
     "prettier": "npx prettier --write ."
   },
