@@ -188,8 +188,8 @@ async function loadConfigFile() {
     }
     return null;
 }
-function parseBooleanValues(value) {
-    return value === "true" ? true : false;
+function parseBooleanValues(options) {
+    return options?.map(target => target === 'true') || [];
 }
 function initHelp() {
     const { version } = getPackage();
@@ -199,17 +199,27 @@ function initHelp() {
         .usage('[options]')
         .option('-o, --output [type...]', 'output file path')
         .option('-p, --path [type...]', 'watch file path')
-        .option('-r --recursive [type...]', 'watch file is recursive')
-        .option('-s --suffix type[...]', 'file extensions for export are supported');
+        .option('-r, --recursive [type...]', 'watch file is recursive')
+        .option('-di, --dir-index [type...]', 'export directory index when recursive is false and dir-index is true')
+        .option('-s, --suffix type[...]', 'file extensions for export are supported');
     program.parse();
 }
 function translateArgvByCommander() {
     const opts = program.opts();
-    const { path = [], output = [], recursive = [], suffix = [] } = opts;
+    const { path = [], output = [], suffix = [] } = opts;
     if (path.length === 0)
         return {};
+    let { recursive = [], dirIndex = [] } = opts;
+    recursive = parseBooleanValues(recursive);
+    dirIndex = parseBooleanValues(dirIndex);
     const dirs = path.map((path, i) => {
-        return { path, output: output?.[i] || '', recursive: recursive?.[i] ? parseBooleanValues(recursive[i]) : false, suffix: suffix[i] || EXPORT_SUFFIX };
+        return {
+            path,
+            output: output?.[i] || '',
+            recursive: recursive[i],
+            suffix: suffix[i] || EXPORT_SUFFIX,
+            dirIndex: dirIndex[i],
+        };
     });
     return { dirs };
 }
@@ -241,20 +251,26 @@ var isHasDefaultExport = (path) => {
 };
 
 async function getAllFileListMap(dir) {
-    const { path, recursive, output } = dir;
+    const { path, recursive, output, dirIndex } = dir;
     const map = new Map();
     const exportSuffix = dir.suffix || EXPORT_SUFFIX;
     exportSuffix.forEach((key) => {
         map.set(key, new Set());
     });
-    let globPath = `${path}/*.{${exportSuffix.join(',')}}`;
+    const suffixStr = exportSuffix.join(',');
+    let globPath = `${path}/*.{${suffixStr}}`;
     if (recursive) {
-        globPath = `${path}/**/*.{${exportSuffix.join(',')}}`;
+        globPath = `${path}/**/*.{${suffixStr}}`;
     }
     if (exportSuffix.length === 1) {
         globPath = globPath.replace(/{(.*)}$/, '$1');
     }
     let filePathList = (await glob(globPath));
+    if (dirIndex) {
+        const fileDirIndexPath = `${path}/*/index.{${suffixStr}}`;
+        const indexFilePathList = (await glob(fileDirIndexPath));
+        filePathList = filePathList.concat(indexFilePathList);
+    }
     if (output) {
         const outputPath = output.replace(/^\.\//, '');
         filePathList = filePathList.filter(path => path !== outputPath);

@@ -3,6 +3,7 @@ export interface IConfig {
         path: string;
         output?: string;
         recursive?: string | boolean;
+        dirIndex?: string | boolean;
         suffix?: string[];
     }>;
 }
