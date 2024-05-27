@@ -357,7 +357,6 @@ const getOutput = async (dir) => {
 async function genExportIndex() {
     initHelp();
     const argvConfig = await loadArgvConfig();
-    // const isIgnoreIndexPath = hasOwn(argvConfig, 'ignoreIndexPath')
     const fileMap = new Map();
     const stdinSet = new Set();
     const { dirs = [] } = argvConfig;

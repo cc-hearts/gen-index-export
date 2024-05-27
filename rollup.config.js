@@ -1,8 +1,11 @@
 import pluginTypescript from '@rollup/plugin-typescript'
-import tsConfig from './tsconfig.build.json' assert { type: 'json' }
 import _resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import json from '@rollup/plugin-json'
+import { readFile } from 'fs/promises'
+
+let tsConfig = await readFile('./tsconfig.build.json', 'utf-8')
+tsConfig = JSON.parse(tsConfig)
 tsConfig.compilerOptions.declaration = false
 
 export default [

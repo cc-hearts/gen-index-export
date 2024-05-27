@@ -12,8 +12,8 @@ const getOutput = async (
 
 export async function genExportIndex() {
   initHelp()
+
   const argvConfig = await loadArgvConfig()
-  // const isIgnoreIndexPath = hasOwn(argvConfig, 'ignoreIndexPath')
   const fileMap = new Map<string, string>()
   const stdinSet = new Set<string>()
   const { dirs = [] } = argvConfig
@@ -25,7 +25,8 @@ export async function genExportIndex() {
       if (output === Symbol.for('stdin')) {
         stdinSet.add(ctx)
       } else {
-        if (typeof output === 'string') fileMap.set(output, ctx)
+        if (typeof output === 'string')
+          fileMap.set(output, ctx)
       }
     })
   )
