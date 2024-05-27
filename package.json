@@ -6,6 +6,7 @@
   "bin": "dist/bin/scripts.mjs",
   "types": "dist/types/src/define.d.ts",
   "type": "module",
+  "packageManager": "pnpm@8.14.1",
   "exports": {
     ".": {
       "import": "./dist/define.esm.js",
