@@ -87,10 +87,12 @@ export function parseModuleMap(
           newPath = replaceSuffix(file)
           break
       }
+      const parseExportDefaultFileSuffix = EXPORT_SUFFIX.filter(_ => !['vue'].includes(_))
+
       const exportInfo = {
         isDefaultExport:
           ONLY_DEFAULT_EXPORT.includes(suffix) ||
-          isHasDefaultExport(absolutePath),
+          parseExportDefaultFileSuffix.includes(suffix) && isHasDefaultExport(absolutePath),
         exportName: componentName,
         exportPath: newPath,
         absolutePath,
