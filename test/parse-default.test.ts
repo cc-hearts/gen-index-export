@@ -1,18 +1,17 @@
-import { vi, describe, expect, it } from "vitest";
+import { vi, describe, expect, it } from 'vitest'
 import parseDefault from '../src/parse-default'
 
 const { readFileCtx } = vi.hoisted(() => {
   return {
-    readFileCtx: { current: '' }
+    readFileCtx: { current: '' },
   }
 })
 
 vi.mock('fs', () => {
   return {
-    readFileSync: () => readFileCtx.current
+    readFileSync: () => readFileCtx.current,
   }
 })
-
 
 describe('parse-default func', () => {
   it('should return true when input a file has default export', () => {

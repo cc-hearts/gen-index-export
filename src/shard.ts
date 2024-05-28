@@ -8,7 +8,7 @@ import { resolve } from 'path'
  * @return {string} Returns the modified path.
  */
 export function replaceSuffix(path: string, replaceSuffix = '') {
-  return path.replace(/\..*?$/, replaceSuffix)
+  return path.replace(/\.\w+$/, replaceSuffix)
 }
 
 export function replacePathIndex(path: string) {
