@@ -1,12 +1,13 @@
 {
   "name": "@cc-heart/gen-index-export",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Generate the exported statement",
   "main": "index.js",
   "bin": "dist/bin/scripts.mjs",
   "types": "dist/types/src/define.d.ts",
   "type": "module",
   "packageManager": "pnpm@8.14.1",
+  "files": ["dist"],
   "exports": {
     ".": {
       "import": "./dist/define.esm.js",

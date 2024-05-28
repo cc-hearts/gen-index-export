@@ -1,8 +1,8 @@
-import { parse } from '@babel/parser';
-import _traverse from "@babel/traverse";
-import { readFileSync } from 'fs';
+import { parse } from '@babel/parser'
+import _traverse from '@babel/traverse'
+import { readFileSync } from 'fs'
 // @ts-ignore
-const traverse = _traverse.default || _traverse;
+const traverse = _traverse.default || _traverse
 export default (path: string) => {
   const code = readFileSync(path, 'utf-8')
   const ast = parse(code, {

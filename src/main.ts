@@ -3,11 +3,9 @@ import loadArgvConfig, { initHelp } from './command.js'
 import { getAllFileListMap, parseModuleMap } from './file.js'
 import { formatOutput } from './output.js'
 
-const getOutput = async (
-  dir: IConfig['dirs'][number]
-) => {
+const getOutput = async (dir: IConfig['dirs'][number]) => {
   const exportMap = await getAllFileListMap(dir)
-  return formatOutput(parseModuleMap(exportMap))
+  return formatOutput(parseModuleMap(exportMap, dir.parser))
 }
 
 export async function genExportIndex() {
@@ -25,10 +23,9 @@ export async function genExportIndex() {
       if (output === Symbol.for('stdin')) {
         stdinSet.add(ctx)
       } else {
-        if (typeof output === 'string')
-          fileMap.set(output, ctx)
+        if (typeof output === 'string') fileMap.set(output, ctx)
       }
-    })
+    }),
   )
   return [fileMap, stdinSet]
 }

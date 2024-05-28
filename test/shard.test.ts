@@ -8,8 +8,7 @@ import {
 
 vi.mock('path', () => {
   return {
-    resolve: (_: string, path: string) =>
-      `/mock/${path.replace(/^\.\//, '')}`,
+    resolve: (_: string, path: string) => `/mock/${path.replace(/^\.\//, '')}`,
   }
 })
 

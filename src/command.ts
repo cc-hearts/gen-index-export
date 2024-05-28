@@ -25,7 +25,7 @@ export async function loadConfigFile(): Promise<ILoadConfig | null> {
 }
 
 function parseBooleanValues(options?: (string | boolean | undefined)[]) {
-  return options?.map(target => target === 'true') || []
+  return options?.map((target) => target === 'true') || []
 }
 
 export function initHelp() {
@@ -34,21 +34,28 @@ export function initHelp() {
     .name('gen-index-export')
     .version(version, '-v, --version')
     .usage('[options]')
-    .option('-o, --output [type...]', 'output file path')
-    .option('-p, --path [type...]', 'watch file path')
-    .option('-r, --recursive [type...]', 'watch file is recursive')
-    .option('-di, --dir-index [type...]', 'export directory index when recursive is false and dir-index is true')
-    .option('-s, --suffix type[...]', 'file extensions for export are supported')
+    .option('-o, --output [type...]', 'Specify the output file path')
+    .option('-p, --path [type...]', 'Specify the file path to watch')
+    .option('-r --recursive [type...]', 'Watch files recursively')
+    .option('-s --suffix type[...]', 'Supported file extensions for export')
+    .option(
+      '-di, --dir-index [type...]',
+      'Export directory index when recursive is false and dir-index is true',
+    )
+    .option('-e --excludes type[...]', 'List of files to exclude')
 
   program.parse()
 }
+
 type ObjectMapArrayObject<T extends Record<string, unknown>> = {
   [k in keyof T]: Array<T[k]>
 }
-function translateArgvByCommander() {
-  const opts: ObjectMapArrayObject<IConfig['dirs'][number]> = program.opts()
+type OptsParams = Omit<IConfig['dirs'][number], 'parser'>
 
-  const { path = [], output = [], suffix = [] } = opts
+function translateArgvByCommander() {
+  const opts: ObjectMapArrayObject<OptsParams> = program.opts()
+
+  const { path = [], output = [], suffix = [], excludes = [] } = opts
   if (path.length === 0) return {}
 
   let { recursive = [], dirIndex = [] } = opts
@@ -63,10 +70,12 @@ function translateArgvByCommander() {
       recursive: recursive[i],
       suffix: suffix[i] || EXPORT_SUFFIX,
       dirIndex: dirIndex[i],
+      excludes: excludes[i],
     }
   })
   return { dirs }
 }
+
 export default async function loadArgvConfig() {
   let argvConfig = {} as IConfig
   const fileConfig = (await loadConfigFile()) || {}

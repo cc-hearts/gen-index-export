@@ -3,8 +3,7 @@ import { vi, describe, it, expect } from 'vitest'
 
 vi.mock('path', () => {
   return {
-    resolve: (_: string, path: string) =>
-      `/mock/${path.replace(/^\.\//, '')}`,
+    resolve: (_: string, path: string) => `/mock/${path.replace(/^\.\//, '')}`,
     isAbsolute: (path: string) => path.startsWith('/'),
     relative: (_: string, path: string) => path.replace(/^\//, ''),
   }
@@ -12,11 +11,15 @@ vi.mock('path', () => {
 
 describe('genModulesAbsolutePath func', () => {
   it('should return absolute path list when dirs.path exist and is a relative path', () => {
-    expect(genModulesAbsolutePath({ dirs: [{ path: './test' }] })).toEqual(['/mock/test'])
+    expect(genModulesAbsolutePath({ dirs: [{ path: './test' }] })).toEqual([
+      '/mock/test',
+    ])
   })
 
   it('should return absolute path list when dirs.path exist and is a absolute path', () => {
-    expect(genModulesAbsolutePath({ dirs: [{ path: '/test' }] })).toEqual(['/test'])
+    expect(genModulesAbsolutePath({ dirs: [{ path: '/test' }] })).toEqual([
+      '/test',
+    ])
   })
 })
 
